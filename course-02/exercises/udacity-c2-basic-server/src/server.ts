@@ -2,6 +2,7 @@ import express, { Router, Request, Response } from 'express';
 import bodyParser from 'body-parser';
 
 import { Car, cars as cars_list } from './cars';
+import { request } from 'http';
 
 (async () => {
   let cars:Car[]  = cars_list;
@@ -68,15 +69,78 @@ import { Car, cars as cars_list } from './cars';
                 .send(`Welcome to the Cloud, ${name}!`);
   } );
 
-  // @TODO Add an endpoint to GET a list of cars
-  // it should be filterable by make with a query paramater
+  // GET a list of cars, filterable by make with a query paramater
+  app.get("/cars",
+    (req: Request, res: Response) => {
+      let { make } = req.query;
+      
+      var result:Car[] = null;
 
-  // @TODO Add an endpoint to get a specific car
-  // it should require id
-  // it should fail gracefully if no matching car is found
+      if ( make ) {
+        result = [];
+        for (let index = 0; index < cars.length; index++) {
+          const car = cars[index];
+          if(car.make === make){
+            result.push(car);
+          }
+        }
+      } else {
+        result = cars;
+      }
 
-  /// @TODO Add an endpoint to post a new car to our list
-  // it should require id, type, model, and cost
+      return res.status(200).send(result);
+    });
+
+
+  // endpoint to get a specific car, requires id, fails gracefully if no matching car is found
+  app.get("/cars/:id",
+    (req: Request, res: Response) => {
+      const { id } = req.params;
+      if ( !id ) {
+        return res.status(400).send("id is required");
+      }
+      
+      var carPos : number = -1;
+
+      for (let index = 0; index < cars.length; index++) {
+        const car = cars[index];
+        if(car.id == id){
+          carPos = index;
+        }
+      }
+
+      if ( carPos != -1 ){
+        return res.status(200).send(cars[carPos]);
+      }else{
+        return res.status(404).send("The car was not found");
+      }
+    });
+
+  /// endpoint to post a new car to our list, requires id, type, model, and cost
+  app.post("/cars",
+    async ( req: Request, res: Response ) => {
+      const { id, type, model, cost, make } = req.body;
+      
+      var error : string = null;
+      if ( !id ) {
+        error = "id is required";
+      } else if ( !type ) {
+        error = "type is required";
+      } else if ( !model ) {
+        error = "model is required";
+      } else if ( !cost ) {
+        error = "cost is required";
+      }
+      if ( error ){
+        return res.status(400).send(error);
+      }
+
+      let newCar : Car = { id:id, type: type, model: model, cost: cost, make: make}; 
+      cars.push(newCar);
+
+      return res.status(201).send(newCar);
+    } );
+
 
   // Start the Server
   app.listen( port, () => {
