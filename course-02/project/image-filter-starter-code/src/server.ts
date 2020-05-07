@@ -16,7 +16,6 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
   app.get("/filteredimage", 
     async (req , res) => {
       const imageUrl = req.query.image_url
-      console.log(imageUrl);
 
       if ( !imageUrl ){
         return res.status(400).send('image_url required');
@@ -24,6 +23,9 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
         return res.status(400).send('image_url is not a valid url');
       }
       const filteredUrl = await filterImageFromURL(imageUrl);
+      res.on("close", () => {
+        deleteLocalFiles([filteredUrl]);
+      });
       
       res.status(200).sendFile(filteredUrl);
   });
