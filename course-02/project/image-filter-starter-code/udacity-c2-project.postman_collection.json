@@ -1,0 +1,33 @@
+{
+	"info": {
+		"_postman_id": "b95421b6-e21b-4942-a72e-ae19f657082b",
+		"name": "udacity-c2-project",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "filteredimage",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/filteredimage?image_url=https://farm3.staticflickr.com/2896/33650426736_a9080913b9_k.jpg",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"filteredimage"
+					],
+					"query": [
+						{
+							"key": "image_url",
+							"value": "https://farm3.staticflickr.com/2896/33650426736_a9080913b9_k.jpg"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
