@@ -1,4 +1,4 @@
-import { S3Handler, S3Event, SNSHandler, SNSEvent } from 'aws-lambda'
+import { S3Event, SNSHandler, SNSEvent } from 'aws-lambda'
 import * as AWS from 'aws-sdk'
 import 'source-map-support/register'
 
