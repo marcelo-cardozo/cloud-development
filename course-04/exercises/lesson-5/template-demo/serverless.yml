@@ -33,6 +33,7 @@ provider:
 
     THUMBNAILS_S3_BUCKET: images-thumbnail-${self:provider.stage}
 
+    AUTH_O_SECRET: .
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -70,6 +71,9 @@ provider:
       Resource: arn:aws:s3:::${self:provider.environment.THUMBNAILS_S3_BUCKET}/*
 
 functions:
+  Auth:
+    handler: src/lambda/auth/auth0Authorizer.handler
+
   GetGroups:
     handler: src/lambda/http/getGroups.handler
     events:
@@ -81,6 +85,7 @@ functions:
     handler: src/lambda/http/createGroup.handler
     events:
       - http:
+          authorizer: Auth
           method: post
           path: groups
           cors: true
@@ -106,6 +111,7 @@ functions:
     handler: src/lambda/http/createImage.handler
     events:
       - http:
+          authorizer: Auth
           method: post
           path: groups/{groupId}/images
           cors: true
@@ -167,6 +173,17 @@ functions:
 
 resources:
   Resources:
+    GatewayResponseDefault4XX:
+      Type: AWS::ApiGateway::GatewayResponse
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+          gatewayresponse.header.Access-Control-Allow-Methods: "'GET,OPTIONS,POST'"
+        ResponseType: DEFAULT_4XX
+        RestApiId:
+          Ref: ApiGatewayRestApi
+
     GroupsDynamoDBTable:
       Type: AWS::DynamoDB::Table
       Properties:
