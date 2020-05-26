@@ -1,13 +1,17 @@
 import { CustomAuthorizerHandler, CustomAuthorizerEvent, CustomAuthorizerResult } from "aws-lambda";
 import { verify } from 'jsonwebtoken'
 import { JwtToken } from "../../auth/JwtToken";
+import AWS from "aws-sdk";
 
-const secret = process.env.AUTH_O_SECRET
+const secretsManager = new AWS.SecretsManager()
+const auth0SecretId = process.env.AUTH_0_SECRET_ID
+const auth0SecretField = process.env.AUTH_0_SECRET_FIELD
 
+let cachedSecretToken = null
 
 export const handler : CustomAuthorizerHandler = async(event : CustomAuthorizerEvent) : Promise<CustomAuthorizerResult> => {
     try {
-        const jwtToken = verifyToken(event.authorizationToken)
+        const jwtToken = await verifyToken(event.authorizationToken)
 
         return {
             principalId: jwtToken.sub, // Unique user id
@@ -40,7 +44,7 @@ export const handler : CustomAuthorizerHandler = async(event : CustomAuthorizerE
 
 }
 
-function verifyToken(authorizationToken: string) : JwtToken {
+async function verifyToken(authorizationToken: string) : Promise<JwtToken> {
     if(authorizationToken === null)
         throw new Error()
 
@@ -49,5 +53,20 @@ function verifyToken(authorizationToken: string) : JwtToken {
 
     const token = authorizationToken.split(' ')[1]
 
+    const secretObject = await getSecretToken()
+    const secret = secretObject[auth0SecretField]
+
     return verify(token, secret) as JwtToken
+}
+
+async function getSecretToken() : Promise<any> {
+    if(cachedSecretToken !== null)
+        return cachedSecretToken
+        
+    const secret = await secretsManager.getSecretValue({
+        SecretId: auth0SecretId
+    }).promise()
+    cachedSecretToken = secret.SecretString
+
+    return JSON.parse(cachedSecretToken)
 }
