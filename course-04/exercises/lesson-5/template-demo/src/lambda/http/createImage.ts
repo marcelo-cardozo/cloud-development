@@ -1,6 +1,8 @@
-import { APIGatewayProxyHandler, APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda"
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda"
 import * as AWS from 'aws-sdk'
 import { v4 as uuidv4 } from 'uuid';
+import middy from 'middy';
+import { cors } from 'middy/middlewares';
 
 const docClient = new AWS.DynamoDB.DocumentClient()
 const s3 = new AWS.S3({
@@ -14,16 +16,13 @@ const signedExpiration = parseInt(process.env.SIGNED_URL_EXPIRATION)
 
 
 
-export const handler : APIGatewayProxyHandler = async (event: APIGatewayProxyEvent) : Promise<APIGatewayProxyResult> => {
+export const handler = middy (async (event: APIGatewayProxyEvent) : Promise<APIGatewayProxyResult> => {
     const groupId = event.pathParameters.groupId
     
     const groupIdExists = groupExists(groupId)
     if(!groupIdExists){
         return {
             statusCode: 404,
-            headers: {
-                'Access-Control-Allow-Origin': '*'
-            },
             body: JSON.stringify({
                 message: 'Group does not exists'
             })
@@ -50,9 +49,6 @@ export const handler : APIGatewayProxyHandler = async (event: APIGatewayProxyEve
     const uploadUrl = getUploadUrl(imageId)
     return {
         statusCode: 201,
-        headers: {
-            'Access-Control-Allow-Origin': '*'
-        },
         body: JSON.stringify({
             newItem: newImage,
             uploadUrl: uploadUrl
@@ -60,7 +56,7 @@ export const handler : APIGatewayProxyHandler = async (event: APIGatewayProxyEve
 
     }
 
-}
+})
 
 async function groupExists(groupId: string) : Promise<Boolean>{
     const result =await docClient.get({
@@ -80,3 +76,7 @@ function getUploadUrl(imageId: string) : string {
         Expires: signedExpiration  // A URL is only valid for . seconds
      })
 }
+
+handler.use(cors({
+    credentials: true
+}))
