@@ -33,8 +33,9 @@ provider:
 
     THUMBNAILS_S3_BUCKET: images-thumbnail-${self:provider.stage}
 
-    AUTH_0_SECRET_ID: Auth0Secret-${self:provider.stage}
-    AUTH_0_SECRET_FIELD: auth0Secret
+    AUTH_0_CERTIFICATE: |
+      -----BEGIN CERTIFICATE-----
+      -----END CERTIFICATE-----
 
   iamRoleStatements:
     - Effect: Allow
@@ -83,6 +84,9 @@ provider:
 
 
 functions:
+  RS256Auth:
+    handler: src/lambda/auth/rs256Auth0Authorizer.handler
+
   Auth:
     handler: src/lambda/auth/auth0Authorizer.handler
 
@@ -97,7 +101,7 @@ functions:
     handler: src/lambda/http/createGroup.handler
     events:
       - http:
-          authorizer: Auth
+          authorizer: RS256Auth
           method: post
           path: groups
           cors: true
@@ -123,7 +127,7 @@ functions:
     handler: src/lambda/http/createImage.handler
     events:
       - http:
-          authorizer: Auth
+          authorizer: RS256Auth
           method: post
           path: groups/{groupId}/images
           cors: true
