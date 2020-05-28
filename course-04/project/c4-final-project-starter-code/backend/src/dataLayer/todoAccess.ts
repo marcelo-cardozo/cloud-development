@@ -6,6 +6,7 @@ const XAWS = AWSXRay.captureAWS(AWS)
 
 
 import { TodoItem as Todo } from '../models/TodoItem'
+import { TodoUpdate } from '../models/TodoUpdate'
 
 export class TodoAccess {
 
@@ -36,26 +37,28 @@ export class TodoAccess {
     return todo
   }
 
-  async updateTodo(todo: Todo) : Promise<Todo>{
+  async updateTodo(todoId: string, todo: TodoUpdate) : Promise<Todo>{
     console.log('Updating todo')
 
     const updatedTodo = await this.docClient.update({
         TableName: this.todosTable,
         Key:{
-            todoId: todo.todoId
+            todoId
         },
-        UpdateExpression: 'SET name = :name, dueDate = :dueDate, done = :done',
+        UpdateExpression: 'SET #todoName = :name, dueDate = :dueDate, done = :done',
+        ExpressionAttributeNames:{
+          '#todoName': 'name'
+          
+        },
         ExpressionAttributeValues:{
-            'name': todo.name,
-            'dueDate': todo.dueDate,
-            'done': todo.done
+            ':name': todo.name,
+            ':dueDate': todo.dueDate,
+            ':done': todo.done
         },
-        ReturnValues: 'UPDATED_NEW'
+        ReturnValues: 'ALL_NEW'
     }).promise()
-
-    console.log('updatedtodo: '+JSON.stringify(updatedTodo))
-
-    return undefined
+    
+    return updatedTodo.Attributes as Todo
   }
 
   async deleteTodo(todoId: string): Promise<void> {
