@@ -1,7 +1,11 @@
-import { APIGatewayProxyHandler, APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda"
-import * as AWS from 'aws-sdk'
+import { APIGatewayProxyHandler, APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
+import 'source-map-support/register'
+import * as AWS  from 'aws-sdk'
+import * as AWSXRay from 'aws-xray-sdk'
+const XAWS = AWSXRay.captureAWS(AWS)
 
-const docClient = new AWS.DynamoDB.DocumentClient()
+const docClient = new XAWS.DynamoDB.DocumentClient()
+
 const connectionsTable = process.env.CONNECTIONS_TABLE
 
 export const handler : APIGatewayProxyHandler = async (event: APIGatewayProxyEvent) : Promise<APIGatewayProxyResult> => {

@@ -9,9 +9,12 @@ import { JwtToken } from './JwtToken'
  */
 export function getUserIdFromAuhorization(authorization: string): string {
   const jwtToken = getTokenFromAuhorization(authorization)
-
-  const jwtDecoded = decode(jwtToken) as JwtToken 
   
+  return getUserIdFromJwttoken(jwtToken)
+}
+
+export function getUserIdFromJwttoken(jwtToken: string) : string {
+  const jwtDecoded = decode(jwtToken) as JwtToken 
   return jwtDecoded.sub
 }
 

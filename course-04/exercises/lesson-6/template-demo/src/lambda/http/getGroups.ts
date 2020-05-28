@@ -1,27 +1,24 @@
-import { APIGatewayProxyHandler, APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda"
-import * as AWS from 'aws-sdk'
+import * as express from 'express'
 
-const docClient = new AWS.DynamoDB.DocumentClient()
+import * as awsServerlessExpress from 'aws-serverless-express'
 
-const groupsTable = process.env.GROUPS_TABLE
+import { getAllGroups } from "../../businessLogic/groups"
 
-export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  // Scan operation parameters
-  const scanParams = {
-    TableName: groupsTable,
-  }  
+const app = express()
 
-  const result = await docClient.scan(scanParams).promise()
+app.get('/groups', async (_req, res) => {
+  // TODO: get all groups as before
+  const groups = await getAllGroups()
 
-  const items = result.Items
+  // Return a list of groups
+  res.json({
+    items: groups
+  })
+})
 
-  return {
-    statusCode: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*'
-    },
-    body: JSON.stringify({
-      items
-    })
-  }
+// Create Express server
+const server = awsServerlessExpress.createServer(app)
+// Pass API Gateway events to the Express server
+exports.handler = (event, context) => { 
+  awsServerlessExpress.proxy(server, event, context) 
 }

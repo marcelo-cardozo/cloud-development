@@ -1,35 +1,24 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda"
-import * as AWS from 'aws-sdk'
-import { v4 as uuidv4 } from 'uuid';
-import middy from 'middy';
-import { cors } from 'middy/middlewares';
-import { getUserIdFromAuhorization } from '../../auth/utils';
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
+import 'source-map-support/register'
+import middy from 'middy'
+import {cors} from 'middy/middlewares'
 
-const docClient = new AWS.DynamoDB.DocumentClient();
-const groupsTable = process.env.GROUPS_TABLE;
+import { CreateGroupRequest } from '../../requests/CreateGroupRequest'
+import { createGroup } from '../../businessLogic/groups'
+import { getTokenFromAuhorization } from '../../auth/utils';
 
 export const handler = middy( async (event: APIGatewayProxyEvent) : Promise<APIGatewayProxyResult> => {
     
     console.log(event)
 
-    const newItem = JSON.parse(event.body);
-
-    const itemPut = {
-        id: uuidv4(),
-        userId: getUserIdFromAuhorization(event.headers.Authorization),
-        ...newItem
-    }
-
-    console.log(itemPut)
+    const jwtToken = getTokenFromAuhorization(event.headers.Authorization)
     
-    await docClient.put({
-        TableName: groupsTable,
-        Item: itemPut
-    }).promise();
+    const newGroup: CreateGroupRequest = JSON.parse(event.body)
+    const newItem = await createGroup(newGroup, jwtToken)
 
     return {
         statusCode: 201,
-        body: JSON.stringify(itemPut)
+        body: JSON.stringify(newItem)
     };
 })
 
