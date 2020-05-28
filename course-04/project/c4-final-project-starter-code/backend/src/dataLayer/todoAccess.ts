@@ -57,8 +57,21 @@ export class TodoAccess {
 
     return undefined
   }
+
+  async deleteTodo(todoId: string): Promise<void> {
+    
+    await this.docClient.delete({
+      TableName: this.todosTable,
+      Key:{
+        todoId
+      }
+    }).promise()
+
+
+  }
   
 }
+
 
 function createDynamoDBClient() {
   if (process.env.IS_OFFLINE) {

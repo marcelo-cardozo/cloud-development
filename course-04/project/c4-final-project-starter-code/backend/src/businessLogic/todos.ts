@@ -23,3 +23,7 @@ export async function createTodo(request: CreateTodoRequest, userId: string): Pr
         done: false    
     })
 }
+
+export async function deleteTodo(todoId: string): Promise<void> {
+    await todoAccess.deleteTodo(todoId)
+}
