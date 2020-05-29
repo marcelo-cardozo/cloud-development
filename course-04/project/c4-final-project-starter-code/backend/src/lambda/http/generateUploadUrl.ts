@@ -10,12 +10,11 @@ export const handler = middy(async (event: APIGatewayProxyEvent): Promise<APIGat
   const userId = getUserId(event)
   
   try {
-    const signedUrl = await getSignedAttachmentUrl(userId, todoId)
-
+    const uploadUrl = await getSignedAttachmentUrl(userId, todoId)
     return {
       statusCode: 200,
       body: JSON.stringify({
-        signedUrl
+        uploadUrl
       })
     }
   } catch (error) {

@@ -38,6 +38,7 @@ custom:
   s3:
     port: ${self:provider.environment.OFFLINE_PORT_S3}
     allowMismatchedSignatures: true
+    cors: ./s3-debug-cors.xml
 
 functions:
 
@@ -91,6 +92,16 @@ functions:
 
 resources:
   Resources:
+    GatewayResponseDefault4XX:
+      Type: 'AWS::ApiGateway::GatewayResponse'
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+        ResponseType: DEFAULT_4XX
+        RestApiId:
+          Ref: 'ApiGatewayRestApi'
+
     TodosDynamoDBTable:
       Type: AWS::DynamoDB::Table
       Properties:
@@ -133,9 +144,6 @@ resources:
               AllowedMethods:
                 - GET
                 - PUT
-                - POST
-                - DELETE
-                - HEAD
               MaxAge: 3000
 
     AttachmentsBucketPolicy:

@@ -43,9 +43,10 @@ export async function updateTodo(userId: string, todoId: string, request: Update
 export async function getSignedAttachmentUrl(userId:string, todoId:string) : Promise<string>{
     const todo = await todoAccess.getTodo(userId, todoId)
     console.log(todo)
-    if (todo)
-        return attachmentAccess.getSignedUrl(todoId)
-    else{
+    if (todo){
+        const signedUrl = attachmentAccess.getSignedUrl(todoId)
+        return signedUrl
+    }else{
         throw new Error('The Todo is not from the user ')
     }
 
