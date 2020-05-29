@@ -1,11 +1,13 @@
 import * as uuid from 'uuid'
 
+import { AttachmentAccess } from '../dataLayer/attachmentAccess'
 import { TodoAccess } from '../dataLayer/todoAccess'
 import { TodoItem } from '../models/TodoItem'
 import { CreateTodoRequest } from '../requests/CreateTodoRequest'
 import { UpdateTodoRequest } from '../requests/UpdateTodoRequest'
 
 const todoAccess = new TodoAccess()
+const attachmentAccess = new AttachmentAccess()
 
 export async function getAllTodos(): Promise<TodoItem[]> {
     return todoAccess.getAllTodos()
@@ -21,7 +23,8 @@ export async function createTodo(request: CreateTodoRequest, userId: string): Pr
         createdAt: new Date().toISOString(),
         name: request.name,
         dueDate: request.dueDate,
-        done: false    
+        done: false,
+        attachmentUrl: attachmentAccess.getUrlFromKey(todoId)
     })
 }
 
@@ -37,4 +40,8 @@ export async function updateTodo(request: UpdateTodoRequest, todoId: string, use
         dueDate: request.dueDate,
         done: request.done    
     })
+}
+
+export function getSignedAttachmentUrl(todoId:string) : string{
+    return attachmentAccess.getSignedUrl(todoId)
 }

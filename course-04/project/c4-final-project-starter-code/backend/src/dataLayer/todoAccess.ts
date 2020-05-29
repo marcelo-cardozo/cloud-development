@@ -84,12 +84,12 @@ function createDynamoDBClient() {
       accessKeyId: 'xxxx',
       secretAccessKey: 'xxxx'
     });
-
+    
     return new XAWS.DynamoDB.DocumentClient({
       region: 'localhost',
-      endpoint: 'http://localhost:8003'
+      endpoint: `http://localhost:${process.env.OFFLINE_PORT_DYNAMODB}`
     })
   }
 
-  return new AWS.DynamoDB.DocumentClient()
+  return new XAWS.DynamoDB.DocumentClient()
 }
