@@ -1,23 +1,24 @@
 import * as AWS  from 'aws-sdk'
 import * as AWSXRay from 'aws-xray-sdk'
-import { DocumentClient } from 'aws-sdk/clients/dynamodb'
 
 const XAWS = AWSXRay.captureAWS(AWS)
 
 
 import { TodoItem as Todo } from '../models/TodoItem'
 import { TodoUpdate } from '../models/TodoUpdate'
+import { createLogger } from '../utils/logger'
 
+const logger = createLogger('todos')
 export class TodoAccess {
 
   constructor(
-    private readonly docClient: DocumentClient = createDynamoDBClient(),
+    private readonly docClient = createDynamoDBClient(),
     private readonly todosTable = process.env.TODOS_TABLE,
     private readonly todosUserIndex = process.env.TODOS_USER_INDEX_NAME) {
   }
 
   async getAllTodos(userId : string): Promise<Todo[]> {
-    console.log('Getting all todos')
+    logger.info('Getting all todos')
 
     const result = await this.docClient.query({
       TableName: this.todosTable,
@@ -28,12 +29,13 @@ export class TodoAccess {
       }
     }).promise()
 
+    logger.info('todos: ', result)
     const items = result.Items
     return items as Todo[]
   }
 
   async createTodo(todo: Todo) : Promise<Todo>{
-    console.log('Creating todo')
+    logger.info('Creating todo')
 
     await this.docClient.put({
         TableName: this.todosTable,
@@ -44,7 +46,7 @@ export class TodoAccess {
   }
 
   async updateTodo(userId: string, todoId: string, todo: TodoUpdate) : Promise<void>{
-    console.log('Updating todo')
+    logger.info('Updating todo')
 
     await this.docClient.update({
         TableName: this.todosTable,
@@ -67,7 +69,7 @@ export class TodoAccess {
   }
 
   async setAttachmentUrl(userId: string, todoId: string, url: string) : Promise<void>{
-    console.log('setting attachmenturl for todo')
+    logger.info('setting attachmenturl for todo')
     
     await this.docClient.update({
         TableName: this.todosTable,
@@ -80,7 +82,7 @@ export class TodoAccess {
             ':attachmentUrl': url
         }
     }).promise()
-    
+
   }
 
   async deleteTodo(userId: string, todoId: string): Promise<void> {
@@ -112,19 +114,19 @@ export class TodoAccess {
 
 
 function createDynamoDBClient() {
-  if (process.env.IS_OFFLINE) {
-    console.log('Creating a local DynamoDB instance')
+  if (process.env.IS_OFFLINE == 'true') {
+    logger.info('Creating a local DynamoDB instance')
     XAWS.config.update({
       region: 'us-east-1',
       accessKeyId: 'xxxx',
       secretAccessKey: 'xxxx'
     });
-    
-    return new XAWS.DynamoDB.DocumentClient({
+    return new AWS.DynamoDB.DocumentClient({
       region: 'localhost',
       endpoint: `http://localhost:${process.env.OFFLINE_PORT_DYNAMODB}`
     })
   }
 
-  return new XAWS.DynamoDB.DocumentClient()
+  logger.info('creating dynamodbclient')
+  return new AWS.DynamoDB.DocumentClient()
 }

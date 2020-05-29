@@ -5,7 +5,9 @@ import { TodoAccess } from '../dataLayer/todoAccess'
 import { TodoItem } from '../models/TodoItem'
 import { CreateTodoRequest } from '../requests/CreateTodoRequest'
 import { UpdateTodoRequest } from '../requests/UpdateTodoRequest'
+import { createLogger } from '../utils/logger'
 
+const logger = createLogger('todos')
 const todoAccess = new TodoAccess()
 const attachmentAccess = new AttachmentAccess()
 
@@ -41,7 +43,7 @@ export async function updateTodo(userId: string, todoId: string, request: Update
 
 export async function getSignedAttachmentUrl(userId:string, todoId:string) : Promise<string>{
     const todo = await todoAccess.getTodo(userId, todoId)
-    console.log(todo)
+    logger.info(todo)
     if (todo){
         const attachmentUrl = attachmentAccess.getUrlFromKey(userId, todoId)
         await todoAccess.setAttachmentUrl(userId, todoId, attachmentUrl)

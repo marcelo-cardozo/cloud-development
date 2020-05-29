@@ -24,7 +24,7 @@ export class AttachmentAccess{
     getUrlFromKey(userId: string, todoId:string) : string {
         const key = `${userId}/${todoId}`
         
-        if(process.env.IS_OFFLINE){
+        if(process.env.IS_OFFLINE == 'true'){
             return `http://localhost:${process.env.OFFLINE_PORT_S3}/${this.attachmentsBucket}/${key}`
         }
         return `https://${this.attachmentsBucket}.s3.amazonaws.com/${key}`
@@ -33,7 +33,7 @@ export class AttachmentAccess{
 
 
 function createS3Client(): S3{
-    if(process.env.IS_OFFLINE){
+    if(process.env.IS_OFFLINE == 'true'){
         console.log('Creating offline S3 client')    
 
         return new XAWS.S3({
