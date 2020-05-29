@@ -12,14 +12,20 @@ export class TodoAccess {
 
   constructor(
     private readonly docClient: DocumentClient = createDynamoDBClient(),
-    private readonly todosTable = process.env.TODOS_TABLE) {
+    private readonly todosTable = process.env.TODOS_TABLE,
+    private readonly todosUserIndex = process.env.TODOS_USER_INDEX_NAME) {
   }
 
-  async getAllTodos(): Promise<Todo[]> {
+  async getAllTodos(userId : string): Promise<Todo[]> {
     console.log('Getting all todos')
 
-    const result = await this.docClient.scan({
-      TableName: this.todosTable
+    const result = await this.docClient.query({
+      TableName: this.todosTable,
+      IndexName: this.todosUserIndex,
+      KeyConditionExpression: 'userId = :userId',
+      ExpressionAttributeValues:{
+        ':userId': userId
+      }
     }).promise()
 
     const items = result.Items
@@ -37,12 +43,13 @@ export class TodoAccess {
     return todo
   }
 
-  async updateTodo(todoId: string, todo: TodoUpdate) : Promise<Todo>{
+  async updateTodo(userId: string, todoId: string, todo: TodoUpdate) : Promise<void>{
     console.log('Updating todo')
 
-    const updatedTodo = await this.docClient.update({
+    await this.docClient.update({
         TableName: this.todosTable,
         Key:{
+            userId,
             todoId
         },
         UpdateExpression: 'SET #todoName = :name, dueDate = :dueDate, done = :done',
@@ -54,23 +61,34 @@ export class TodoAccess {
             ':name': todo.name,
             ':dueDate': todo.dueDate,
             ':done': todo.done
-        },
-        ReturnValues: 'ALL_NEW'
+        }
     }).promise()
-    
-    return updatedTodo.Attributes as Todo
+
   }
 
-  async deleteTodo(todoId: string): Promise<void> {
+  async deleteTodo(userId: string, todoId: string): Promise<void> {
     
     await this.docClient.delete({
       TableName: this.todosTable,
       Key:{
-        todoId
+          userId,
+          todoId
+      },
+    }).promise()
+
+  }
+
+  async getTodo(userId: string, todoId: string): Promise<Todo> {
+    
+    const result = await this.docClient.get({
+      TableName: this.todosTable,
+      Key:{
+          userId,
+          todoId
       }
     }).promise()
 
-
+    return result.Item as Todo
   }
   
 }

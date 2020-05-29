@@ -9,11 +9,11 @@ import { UpdateTodoRequest } from '../requests/UpdateTodoRequest'
 const todoAccess = new TodoAccess()
 const attachmentAccess = new AttachmentAccess()
 
-export async function getAllTodos(): Promise<TodoItem[]> {
-    return todoAccess.getAllTodos()
+export async function getAllTodos(userId : string): Promise<TodoItem[]> {
+    return todoAccess.getAllTodos(userId)
 }
 
-export async function createTodo(request: CreateTodoRequest, userId: string): Promise<TodoItem> {
+export async function createTodo(userId: string, request: CreateTodoRequest): Promise<TodoItem> {
 
     const todoId = uuid.v4()
 
@@ -28,20 +28,25 @@ export async function createTodo(request: CreateTodoRequest, userId: string): Pr
     })
 }
 
-export async function deleteTodo(todoId: string): Promise<void> {
-    await todoAccess.deleteTodo(todoId)
+export async function deleteTodo(userId: string, todoId: string): Promise<void> {
+    return todoAccess.deleteTodo(userId, todoId)
 }
 
-export async function updateTodo(request: UpdateTodoRequest, todoId: string, userId: string): Promise<TodoItem> {
-    // check user to update todo?
-
-    return todoAccess.updateTodo(todoId, {
+export async function updateTodo(userId: string, todoId: string, request: UpdateTodoRequest): Promise<void>  {
+    return todoAccess.updateTodo(userId, todoId, {
         name: request.name,
         dueDate: request.dueDate,
         done: request.done    
     })
 }
 
-export function getSignedAttachmentUrl(todoId:string) : string{
-    return attachmentAccess.getSignedUrl(todoId)
+export async function getSignedAttachmentUrl(userId:string, todoId:string) : Promise<string>{
+    const todo = await todoAccess.getTodo(userId, todoId)
+    console.log(todo)
+    if (todo)
+        return attachmentAccess.getSignedUrl(todoId)
+    else{
+        throw new Error('The Todo is not from the user ')
+    }
+
 }

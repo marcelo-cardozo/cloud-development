@@ -1,19 +1,30 @@
 import 'source-map-support/register'
 import * as middy from 'middy'
 import {cors} from 'middy/middlewares'
-import { APIGatewayProxyEvent, APIGatewayProxyResult, APIGatewayProxyHandler } from 'aws-lambda'
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { getSignedAttachmentUrl } from '../../businessLogic/todos'
+import { getUserId } from '../utils'
 
 export const handler = middy(async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   const todoId = event.pathParameters.todoId
-  const signedUrl = getSignedAttachmentUrl(todoId)
+  const userId = getUserId(event)
+  
+  try {
+    const signedUrl = await getSignedAttachmentUrl(userId, todoId)
 
-  return {
-    statusCode: 200,
-    body: JSON.stringify({
-      signedUrl
-    })
+    return {
+      statusCode: 200,
+      body: JSON.stringify({
+        signedUrl
+      })
+    }
+  } catch (error) {
+    return {
+      statusCode: 401,
+      body: JSON.stringify({})
+    }
   }
+  
 })
 
 handler.use(cors({
