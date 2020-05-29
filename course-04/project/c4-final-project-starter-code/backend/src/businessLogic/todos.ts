@@ -23,8 +23,7 @@ export async function createTodo(userId: string, request: CreateTodoRequest): Pr
         createdAt: new Date().toISOString(),
         name: request.name,
         dueDate: request.dueDate,
-        done: false,
-        attachmentUrl: attachmentAccess.getUrlFromKey(todoId)
+        done: false
     })
 }
 
@@ -44,7 +43,10 @@ export async function getSignedAttachmentUrl(userId:string, todoId:string) : Pro
     const todo = await todoAccess.getTodo(userId, todoId)
     console.log(todo)
     if (todo){
-        const signedUrl = attachmentAccess.getSignedUrl(todoId)
+        const attachmentUrl = attachmentAccess.getUrlFromKey(userId, todoId)
+        await todoAccess.setAttachmentUrl(userId, todoId, attachmentUrl)
+
+        const signedUrl = attachmentAccess.getSignedUrl(userId, todoId)
         return signedUrl
     }else{
         throw new Error('The Todo is not from the user ')

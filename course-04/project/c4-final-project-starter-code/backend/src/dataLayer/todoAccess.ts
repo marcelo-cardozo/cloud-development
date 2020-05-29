@@ -66,6 +66,23 @@ export class TodoAccess {
 
   }
 
+  async setAttachmentUrl(userId: string, todoId: string, url: string) : Promise<void>{
+    console.log('setting attachmenturl for todo')
+    
+    await this.docClient.update({
+        TableName: this.todosTable,
+        Key:{
+            userId,
+            todoId
+        },
+        UpdateExpression: 'SET attachmentUrl = :attachmentUrl',
+        ExpressionAttributeValues:{
+            ':attachmentUrl': url
+        }
+    }).promise()
+    
+  }
+
   async deleteTodo(userId: string, todoId: string): Promise<void> {
     
     await this.docClient.delete({

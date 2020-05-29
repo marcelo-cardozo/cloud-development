@@ -11,7 +11,9 @@ export class AttachmentAccess{
         private readonly signedExpiration = 3600
     ) {}
 
-    getSignedUrl(key: string) : string{
+    getSignedUrl(userId: string, todoId:string) : string{
+        const key = `${userId}/${todoId}`
+
         return this.s3.getSignedUrl('putObject', {
             Bucket: this.attachmentsBucket, // Name of an S3 bucket
             Key: key, // id of an object this URL allows access to
@@ -19,7 +21,9 @@ export class AttachmentAccess{
         })
     }
 
-    getUrlFromKey(key: string) : string {
+    getUrlFromKey(userId: string, todoId:string) : string {
+        const key = `${userId}/${todoId}`
+        
         if(process.env.IS_OFFLINE){
             return `http://localhost:${process.env.OFFLINE_PORT_S3}/${this.attachmentsBucket}/${key}`
         }
