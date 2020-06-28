@@ -5,11 +5,14 @@ content for Udacity's cloud developer nanodegree
 
 
 # Course 04 - Develop & Deploy Serverless App
-In this course Serverless framework is used to deploy two apps to AWS infrastructure 
+In this course the Serverless framework is used to deploy two apps to AWS infrastructure 
 - Udagram: Built throughout the lessons. Allow the user to upload images to the app
 - Project: Users can create TODO item in the app, add information about their TODO and also an image
 
 ## Deploy Project
+
+It is required to create an account and an app in [Auth0](https://auth0.com/)
+
 ### Backend
 ```
 # Install serverless
