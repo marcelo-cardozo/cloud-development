@@ -25,6 +25,6 @@ sls offline
 npm install
 ```
 #### Configure client configs
-`apiEndpoint`: Serverless root url
-`domain`: auth0 domainname for the app
-`clientId`: auth0 clientId for the app
+- `apiEndpoint`: Serverless root url
+- `domain`: auth0 domainname for the app
+- `clientId`: auth0 clientId for the app
