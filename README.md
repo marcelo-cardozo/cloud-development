@@ -9,7 +9,7 @@ In this course Serverless framework is used to deploy two apps to AWS infrastruc
 - Udagram: Built throughout the lessons. Allow the user to upload images to the app
 - Project: Users can create TODO item in the app, add information about their TODO and also an image
 
-## Install
+## Deploy Project
 ### Backend
 ```
 # Install serverless
@@ -64,6 +64,6 @@ npm start
 #### Configure client configs
 - `apiEndpoint`: Serverless root url 
     - **Local:** [http://localhost:3003/dev](http://localhost:3003/dev)
-    - **AWS:** [https://apiId.execute-api.us-east-1.amazonaws.com/dev]([https://apiId.execute-api.us-east-1.amazonaws.com/dev)
+    - **AWS:** [https://apiId.execute-api.us-east-1.amazonaws.com/prod](https://apiId.execute-api.us-east-1.amazonaws.com/prod)
 - `domain`: auth0 domainname for the app
 - `clientId`: auth0 clientId for the app
