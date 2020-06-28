@@ -7,6 +7,7 @@ plugins:
   - serverless-dynamodb-local
   - serverless-offline
   - serverless-s3-local
+  - serverless-s3-remover
   
 provider:
   name: aws
@@ -20,8 +21,8 @@ provider:
     TODOS_USER_INDEX_NAME: todos-app-todos-user-index-${self:provider.stage}
     ATTACHMENTS_S3_BUCKET: attachments-app-bucket-${self:provider.stage}
     
-    IS_OFFLINE: true
-    _X_AMZN_TRACE_ID: 1
+    IS_OFFLINE: false
+    # _X_AMZN_TRACE_ID: 1
     OFFLINE_PORT_SERVERLESS: 3003
     OFFLINE_PORT_DYNAMODB: 8003
     OFFLINE_PORT_S3: 4569
@@ -52,6 +53,10 @@ custom:
     port: ${self:provider.environment.OFFLINE_PORT_S3}
     allowMismatchedSignatures: true
     cors: ./s3-debug-cors.xml
+  
+  remover:
+    buckets:
+      - ${self:provider.environment.ATTACHMENTS_S3_BUCKET}
 
 functions:
   Auth:
