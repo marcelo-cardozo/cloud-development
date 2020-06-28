@@ -20,8 +20,8 @@ provider:
     TODOS_USER_INDEX_NAME: todos-app-todos-user-index-${self:provider.stage}
     ATTACHMENTS_S3_BUCKET: attachments-app-bucket-${self:provider.stage}
     
-    IS_OFFLINE: false
-    # _X_AMZN_TRACE_ID: 1
+    IS_OFFLINE: true
+    _X_AMZN_TRACE_ID: 1
     OFFLINE_PORT_SERVERLESS: 3003
     OFFLINE_PORT_DYNAMODB: 8003
     OFFLINE_PORT_S3: 4569
